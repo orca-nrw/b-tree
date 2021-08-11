@@ -1,12 +1,12 @@
 import React from 'react'
-import './app.css'
+import './index.css'
 import { Header } from './Header'
 import { BTree } from './BTree'
 import { Footer } from './Footer'
 
 const App = () => {
   return (
-    <div className='main-container'>
+    <div className="max-w-screen-xl mx-auto my-0 flex flex-col justify-center">
       <Header />
       <BTree />
       <Footer />
