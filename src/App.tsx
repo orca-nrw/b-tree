@@ -1,5 +1,4 @@
 import React from 'react'
-import './index.css'
 import { Header } from './Header'
 import { BTree } from './BTree'
 import { Footer } from './Footer'
