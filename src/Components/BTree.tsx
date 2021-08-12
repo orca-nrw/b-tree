@@ -24,11 +24,16 @@ export const BTree = () => {
     const canvas = canvasRef.current
     if (!canvas) return
     canvas.height = 750
+    canvas.width = 750
     const resolver = canvas?.getContext('2d')
     if (!resolver || !(resolver instanceof CanvasRenderingContext2D)) return
     context = resolver
     initializeCanvas(context, treeType)
   }, [])
+
+  useEffect(() => {
+    resetTree(context, treeType)
+  }, [treeType])
 
   return (
     <div className="mx-0 my-5 bg-white">
@@ -39,7 +44,7 @@ export const BTree = () => {
         treeType={treeType}
         setTreeType={setTreeType} />
 
-      <canvas className="mx-auto" ref={canvasRef}></canvas>
+      <canvas className="m-auto" ref={canvasRef}></canvas>
     </div>
   )
 }
