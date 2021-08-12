@@ -20,7 +20,7 @@ export const BTree = () => {
   }
 
   useEffect(() => {
-    // Initialize Context with null handling
+    // Initialize Context with undefined handling
     const canvas = canvasRef.current
     if (!canvas) return
     canvas.height = 750
@@ -32,6 +32,11 @@ export const BTree = () => {
   }, [])
 
   useEffect(() => {
+    // Reset tree with undefined handling
+    const canvas = canvasRef.current
+    const resolver = canvas?.getContext('2d')
+    if (!resolver || !(resolver instanceof CanvasRenderingContext2D)) return
+    context = resolver
     resetTree(context, treeType)
   }, [treeType])
 
