@@ -1,12 +1,15 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { TreeHeader } from './TreeHeader'
 
 export const BTree = () => {
   const [treeType, setTreeType] = useState(1)
-  const [infoText, setInfoText] = useState('')
+  const height = 500
+  const width = 500
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  let context: CanvasRenderingContext2D
 
   function handleInsertion (x: any) {
-    console.log('Insert:', x)
+    console.log(context)
   }
 
   function handleDeletion (x: any) {
@@ -14,9 +17,16 @@ export const BTree = () => {
   }
 
   function handleReset () {
-    setInfoText('Reset!')
     console.log('Reset!')
   }
+
+  useEffect(() => {
+    // Initialize Context with null handling
+    const canvas = canvasRef.current
+    const resolver = canvas?.getContext('2d')
+    if (!resolver || !(resolver instanceof CanvasRenderingContext2D)) return
+    context = resolver
+  }, [])
 
   return (
     <div className="mx-0 my-5 bg-white">
@@ -26,9 +36,8 @@ export const BTree = () => {
         resetHandler={handleReset}
         treeType={treeType}
         setTreeType={setTreeType} />
-      <div className="">{infoText}</div>
 
-      <canvas id="canvas" />
+      <canvas className="mx-auto" ref={canvasRef} height={height} width={width}></canvas>
     </div>
   )
 }

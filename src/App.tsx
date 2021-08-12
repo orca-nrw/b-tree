@@ -1,7 +1,7 @@
 import React from 'react'
-import { Header } from './Header'
-import { BTree } from './BTree'
-import { Footer } from './Footer'
+import { Header } from './Components/Header'
+import { BTree } from './Components/BTree'
+import { Footer } from './Components/Footer'
 
 const App = () => {
   return (
