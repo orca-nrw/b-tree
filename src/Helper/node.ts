@@ -1,12 +1,15 @@
-/* eslint-disable */
 export class Node {
+  parent: Node | null
+  keys: number[]
+  children: Node[]
+
   constructor () {
     this.parent = null
     this.keys = []
     this.children = []
   }
 
-  insertKey (newKey, order) {
+  insertKey (newKey: number, order: number) {
     if (!this.isFull(order)) {
       for (let i = 0; i <= order * 2 - 1; i++) {
         if (newKey < this.keys[i] || this.keys[i] == null) {
@@ -20,14 +23,14 @@ export class Node {
   }
 
   isLeaf () {
-    if (this.children.length == 0) {
+    if (this.children.length === 0) {
       return true
     } else {
       return false
     }
   }
 
-  isFull (order) {
+  isFull (order: number) {
     for (let i = 0; i <= order * 2 - 1; i++) {
       if (this.keys[i] == null) {
         return false
@@ -36,7 +39,7 @@ export class Node {
     return true
   }
 
-  addChild (newChildNode) {
+  addChild (newChildNode: Node) {
     newChildNode.parent = this
     const key1 = newChildNode.keys[0]
     for (let i = 0; i < this.keys.length; i++) {

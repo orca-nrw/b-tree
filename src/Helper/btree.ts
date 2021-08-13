@@ -1,58 +1,58 @@
-/* eslint-disable */
 import { Node } from './node'
 
 export class Tree {
-  constructor (order) {
+  order: number
+  root: Node
+  height: number
+  constructor (order: number) {
     this.order = order
     this.root = new Node()
     this.height = 1
   }
 
-  getLeftNeighborNode (node) {
-    if (node.parent != null) {
-      for (let i = 0; i < node.parent.children.length; i++) {
-        if (node == node.parent.children[i]) {
-          if ((i - 1) >= 0) {
-            return node.parent.children[i - 1]
-          } else {
-            console.log('There is no left neigbor Node')
-            return null
-          }
-        }
-      }
+  getLeftNeighborNode (node: Node): Node | null {
+    // Node has no parents and thus no neighbours
+    if (!node.parent) return null
+
+    // Look through parents childs
+    const nodeIndex = node.parent.children.indexOf(node)
+    // Check if node is the leftmost child
+    if (nodeIndex >= 1) {
+      return node.parent.children[nodeIndex - 1]
+    } else {
+      return null
     }
   }
 
-  getRightNeighborNode (node) {
-    if (node.parent != null) {
-      for (let i = 0; i < node.parent.children.length; i++) {
-        if (node == node.parent.children[i]) {
-          if ((i + 1) < node.parent.children.length) {
-            return node.parent.children[i + 1]
-          } else {
-            console.log('There is no right neighbor Node')
-            return null
-          }
-        }
-      }
+  getRightNeighborNode (node: Node) {
+    // Node has no parents and thus no neighbours
+    if (!node.parent) return null
+
+    const nodeIndex = node.parent?.children.indexOf(node)
+    // Check if node is the rightmost child
+    if ((nodeIndex + 1) < node.parent.children.length) {
+      return node.parent.children[nodeIndex + 1]
+    } else {
+      return null
     }
   }
 
-  deleteValue (value, nodeToCheck) {
-    let node = this.findNode(value, nodeToCheck)
-    if (node == null) {
+  deleteValue (value: number, nodeToCheck: Node) {
+    let node: Node | null = this.findNode(value, nodeToCheck)
+    if (!node) {
       console.log('Value does not exist in Tree.')
     } else {
       // If Leaf
       if (node.isLeaf()) {
         // No Underflow
+        if (!node.parent) return
         if (node.keys.length > this.order) {
           for (let i = 0; i < node.keys.length; i++) {
-            if (value == node.keys[i]) {
+            if (value === node.keys[i]) {
               node.keys.splice(i, 1)
             }
           }
-        } else if (node.keys.length == this.order) { // Underflow
+        } else if (node.keys.length === this.order) {
           // Underflow and NeighborNode (left or right) has k+1 -> Rotate
           const leftNeighborNode = this.getLeftNeighborNode(node)
           const rightNeighborNode = this.getRightNeighborNode(node)
@@ -60,9 +60,9 @@ export class Tree {
           // If Underflow and left NeighborNode has k+1, steal value from left neighborNode
           if (leftNeighborNode != null && leftNeighborNode.keys.length > this.order) {
             for (let i = 0; i < node.parent.children.length; i++) {
-              if (node == node.parent.children[i]) {
+              if (node === node.parent.children[i]) {
                 for (let j = 0; j < node.keys.length; j++) {
-                  if (value == node.keys[j]) {
+                  if (value === node.keys[j]) {
                     node.keys.splice(j, 1)
                   }
                 }
@@ -75,9 +75,9 @@ export class Tree {
             // If Underflow and left NeighborNode has not k+1, but right NeighborNode has k+1, steal value from right neighborNode
           } else if (rightNeighborNode != null && rightNeighborNode.keys.length > this.order) {
             for (let i = 0; i < node.parent.children.length; i++) {
-              if (node == node.parent.children[i]) {
+              if (node === node.parent.children[i]) {
                 for (let j = 0; j < node.keys.length; j++) {
-                  if (value == node.keys[j]) {
+                  if (value === node.keys[j]) {
                     node.keys.splice(j, 1)
                   }
                 }
@@ -90,9 +90,9 @@ export class Tree {
             // If there is a left NeighborNode, merge with it
             if (leftNeighborNode != null) {
               for (let i = 0; i < node.parent.children.length; i++) {
-                if (node == node.parent.children[i]) {
+                if (node === node.parent.children[i]) {
                   for (let j = 0; j < node.keys.length; j++) {
-                    if (value == node.keys[j]) {
+                    if (value === node.keys[j]) {
                       node.keys.splice(j, 1)
                     }
                   }
@@ -105,16 +105,16 @@ export class Tree {
                   node.parent.children.splice(i, 1)
                 }
               }
-              if (node.parent.keys.length == 0 && node.parent.parent == null) {
+              if (node.parent.keys.length === 0 && !node.parent.parent) {
                 leftNeighborNode.parent = null
                 this.root = leftNeighborNode
               }
               // If there is not left NeighborNode, but a right one, merge with the right Node
-            } else if (rightNeighborNode != null) {
+            } else if (rightNeighborNode) {
               for (let i = 0; i < node.parent.children.length; i++) {
-                if (node == node.parent.children[i]) {
+                if (node === node.parent.children[i]) {
                   for (let j = 0; j < node.keys.length; j++) {
-                    if (value == node.keys[j]) {
+                    if (value === node.keys[j]) {
                       node.keys.splice(j, 1)
                     }
                   }
@@ -128,7 +128,7 @@ export class Tree {
                   node.parent.children.splice(i, 1)
                 }
               }
-              if (node.parent.keys.length == 0 && node.parent.parent == null) {
+              if (node.parent.keys.length === 0 && !node.parent.parent) {
                 rightNeighborNode.parent = null
                 this.root = rightNeighborNode
               }
@@ -147,7 +147,7 @@ export class Tree {
     }
   }
 
-  handleUnderflowInParent (node) {
+  handleUnderflowInParent (node: any) {
     // NeighborNode (left or right) has k+1
 
     const leftNeighborNode = this.getLeftNeighborNode(node)
@@ -155,7 +155,7 @@ export class Tree {
 
     if (leftNeighborNode != null && leftNeighborNode.keys.length > this.order) {
       for (let i = 0; i < node.parent.children.length; i++) {
-        if (node == node.parent.children[i]) {
+        if (node === node.parent.children[i]) {
           // Steal values
           node.insertKey(node.parent.keys[i - 1], this.order)
           node.parent.keys[i - 1] = leftNeighborNode.keys[leftNeighborNode.keys.length - 1]
@@ -176,7 +176,7 @@ export class Tree {
       }
     } else if (rightNeighborNode != null && rightNeighborNode.keys.length > this.order) {
       for (let i = 0; i < node.parent.children.length; i++) {
-        if (node == node.parent.children[i]) {
+        if (node === node.parent.children[i]) {
           // Steal values
           node.insertKey(node.parent.keys[i], this.order)
           node.parent.keys[i] = rightNeighborNode.keys[0]
@@ -195,11 +195,12 @@ export class Tree {
           }
         }
       }
-    } else { // No NeighborNode with k+1, merge with left or right NeighborNode
+    } else {
+      // No NeighborNode with k+1, merge with left or right NeighborNode
       // If there is a left NeighborNode, merge with it
       if (leftNeighborNode != null) {
         for (let i = 0; i < node.parent.children.length; i++) {
-          if (node == node.parent.children[i]) {
+          if (node === node.parent.children[i]) {
             node.insertKey(node.parent.keys[i - 1], this.order)
             node.parent.keys.splice(i - 1, 1)
             node.parent.children.splice(i, 1)
@@ -215,13 +216,13 @@ export class Tree {
         }
 
         // If Parent Node empty now, delete
-        if (node.parent.keys.length == 0 && node.parent.parent == null) {
+        if (node.parent.keys.length === 0 && !node.parent.parent) {
           leftNeighborNode.parent = null
           this.root = leftNeighborNode
         }
       } else if (rightNeighborNode != null) { // If there is no left NeighborNode, but a right NeighborNode, merge with right NeighborNode
         for (let i = 0; i < node.parent.children.length; i++) {
-          if (node == node.parent.children[i]) {
+          if (node === node.parent.children[i]) {
             node.insertKey(node.parent.keys[i], this.order)
             node.parent.keys.splice(i, 1)
             node.parent.children.splice(i, 1)
@@ -235,13 +236,13 @@ export class Tree {
             }
           }
         }
-        if (node.parent.keys.length == 0 && node.parent.parent == null) {
+        if (node.parent.keys.length === 0 && !node.parent.parent) {
           rightNeighborNode.parent = null
           this.root = rightNeighborNode
         }
       }
-      if (node.parent != null) {
-        if (node.parent.keys.length < this.order && node.parent.parent != null) {
+      if (node.parent) {
+        if (node.parent.keys.length < this.order && node.parent.parent) {
           this.handleUnderflowInParent(node.parent)
         }
       }
@@ -250,12 +251,12 @@ export class Tree {
     }
   }
 
-  deleteValueInNode (value, node) {
+  deleteValueInNode (value: number, node: Node) {
     let tempChildNode = new Node()
 
     // Delete value from Node
     for (let i = 0; i < node.keys.length; i++) {
-      if (value == node.keys[i]) {
+      if (value === node.keys[i]) {
         node.keys.splice(i, 1)
       }
       tempChildNode = node.children[i]
@@ -271,47 +272,46 @@ export class Tree {
     this.deleteValue(replaceValue, tempChildNode)
   }
 
-  findValue (value, nodeToCheck) {
+  findValue (value: number, nodeToCheck: Node) {
     const node = this.findNode(value, nodeToCheck)
     if (node == null) {
       return null
     } else {
       for (let i = 0; i < node.keys.length; i++) {
-        if (value == node.keys[i]) {
+        if (value === node.keys[i]) {
           return node.keys[i]
         }
       }
     }
   }
 
-  findNode (value, nodeToCheck) {
-    for (let i = 0; i < nodeToCheck.keys.length; i++) {
-      if (value == nodeToCheck.keys[i]) {
-        return nodeToCheck
-      }
-    }
-    if (nodeToCheck.isLeaf()) {
-      return null
-    }
+  findNode (value: number, nodeToCheck: Node): Node | null {
+    // Check if current node contains the given value
+    if (nodeToCheck.keys.find(key => key === value)) return nodeToCheck
+
+    if (nodeToCheck.isLeaf()) return null
+
     for (let i = 0; i < nodeToCheck.keys.length; i++) {
       if (value < nodeToCheck.keys[i]) {
         return this.findNode(value, nodeToCheck.children[i])
-      } else if (nodeToCheck.keys[i] < value && nodeToCheck.keys[i + 1] == null) {
+      } else if (nodeToCheck.keys[i] < value && !nodeToCheck.keys[i + 1]) {
         return this.findNode(value, nodeToCheck.children[i + 1])
       }
     }
+    return null
   }
 
-  insertKey (newKey) {
+  insertKey (newKey: number) {
     const leafNode = this.getLeafNode(newKey, this.root)
 
     // If leafNode is not full, insert
     if (!leafNode.isFull(this.order)) {
       leafNode.insertKey(newKey, this.order)
-    } else { // If leafNode is not full, split
+    } else {
+      // If leafNode is not full, split
       // Insert 2k+1 values in node
       for (let i = 0; i <= this.order * 2; i++) {
-        if (newKey < leafNode.keys[i] || leafNode.keys[i] == null) {
+        if (newKey < leafNode.keys[i] || !leafNode.keys[i]) {
           leafNode.keys.splice(i, 0, newKey)
           break
         }
@@ -321,24 +321,25 @@ export class Tree {
     }
   }
 
-  getLeafNode (newKey, nodeToCheck) {
+  getLeafNode (newKey: number, nodeToCheck: Node): Node {
     if (nodeToCheck.isLeaf()) {
       return nodeToCheck
     } else {
       for (let i = 0; i < nodeToCheck.keys.length; i++) {
         if (newKey < nodeToCheck.keys[i]) {
           return this.getLeafNode(newKey, nodeToCheck.children[i])
-        } else if (nodeToCheck.keys[i] < newKey && nodeToCheck.keys[i + 1] == null) {
+        } else if (nodeToCheck.keys[i] < newKey && !nodeToCheck.keys[i + 1]) {
           return this.getLeafNode(newKey, nodeToCheck.children[i + 1])
         }
       }
+      throw Error('Invalid tree!')
     }
   }
 
-  split (nodeToSplit, order) {
+  split (nodeToSplit: Node, order: number) {
     // Create new parent and neighbor Node
     let parentNode = new Node()
-    if (nodeToSplit.parent != null) parentNode = nodeToSplit.parent
+    if (nodeToSplit.parent) parentNode = nodeToSplit.parent
     const neighborNode = new Node()
 
     // Insert values in new neighbor Node
@@ -355,7 +356,7 @@ export class Tree {
       }
     }
     // Delete values from nodeToSplit, which were inserted into new neighbor Node
-    while (nodeToSplit.keys[order] != null) {
+    while (nodeToSplit.keys[order]) {
       nodeToSplit.keys.splice(order, 1)
       if (nodeToSplit.children.length !== 0) {
         nodeToSplit.children.splice(order + 1, 1)
@@ -371,15 +372,15 @@ export class Tree {
       }
       parentNode.addChild(neighborNode)
       // If parent has no parent, set parent as new root
-      if (parentNode.parent == null) this.root = parentNode
+      if (!parentNode.parent) this.root = parentNode
     } else {
       for (let i = 0; i <= this.order * 2; i++) {
-        if (insertInParent < parentNode.keys[i] || parentNode.keys[i] == null) {
+        if (insertInParent < parentNode.keys[i] || !parentNode.keys[i]) {
           parentNode.keys.splice(i, 0, insertInParent)
           break
         }
       }
-      if (nodeToSplit.parent == null) {
+      if (!nodeToSplit.parent) {
         parentNode.addChild(nodeToSplit)
       }
       parentNode.addChild(neighborNode)
@@ -391,7 +392,7 @@ export class Tree {
   getDepth () {
     let currentNode = this.root
     let depth = 1
-    while (currentNode.children[0] != null) {
+    while (currentNode.children[0]) {
       depth += 1
       currentNode = currentNode.children[0]
     }
@@ -436,7 +437,7 @@ export class Tree {
     return stringsLevel
   }
 
-  printNode (node, stringsLevel, depth) {
+  printNode (node: Node, stringsLevel: any, depth: number) {
     stringsLevel[depth] += '|' + node.keys + '|  '
     if (!node.isLeaf()) {
       depth += 1
@@ -453,7 +454,7 @@ export class Tree {
     const stringsLevel = []
     // Insert empty strings into array, so there is no "undefined" in front of each entry
     for (let i = 0; i < depth; i++) {
-      const array = []
+      const array: any = []
       stringsLevel.push(array)
     }
     // Recursive printNode-function fills stringsLevel-Array
@@ -461,7 +462,7 @@ export class Tree {
     return stringsLevel
   }
 
-  printNodeObject (node, stringsLevel, depth) {
+  printNodeObject (node: Node, stringsLevel: any, depth: number) {
     stringsLevel[depth].push(node)
     if (!node.isLeaf()) {
       depth += 1
