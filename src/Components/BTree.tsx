@@ -1,43 +1,34 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { initializeCanvas, insertValue, resetTree } from '../Helper/canvas'
+import { CanvasHelper } from '../Helper/CanvasHelper'
 import { TreeHeader } from './TreeHeader'
 
 export const BTree = () => {
   const [treeType, setTreeType] = useState(1)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  let context: CanvasRenderingContext2D
+  let canvasHelper: CanvasHelper<Number>
 
-  function handleInsertion (x: any) {
-    insertValue(Number(x), context)
+  function handleInsertion (key: any) {
+    canvasHelper.insert(Number(key))
   }
 
-  function handleDeletion (x: any) {
-    console.log('Delete: ', x)
+  function handleDeletion (key: any) {
+    canvasHelper.remove(Number(key))
   }
 
   function handleReset () {
-    resetTree(context, treeType)
+    canvasHelper.resetTree()
   }
 
   useEffect(() => {
-    // Initialize Context with undefined handling
+    // Initialize canvasHelper with null handling
     const canvas = canvasRef.current
-    if (!canvas) return
-    canvas.height = 750
-    canvas.width = 750
-    const resolver = canvas?.getContext('2d')
-    if (!resolver || !(resolver instanceof CanvasRenderingContext2D)) return
-    context = resolver
-    initializeCanvas(context, treeType)
+    if (!canvas) throw Error('Could not find canvas reference!')
+    canvasHelper = new CanvasHelper<Number>(canvas, treeType)
   }, [])
 
   useEffect(() => {
-    // Reset tree with undefined handling
-    const canvas = canvasRef.current
-    const resolver = canvas?.getContext('2d')
-    if (!resolver || !(resolver instanceof CanvasRenderingContext2D)) return
-    context = resolver
-    resetTree(context, treeType)
+    // Handle tree type changes by resetting the tree and setting the new type
+    canvasHelper.resetTree(treeType)
   }, [treeType])
 
   return (
