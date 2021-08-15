@@ -1,473 +1,251 @@
-import { Node } from './node'
+import { BTreeNode } from './BTreeNode'
 
-export class Tree {
+/**
+ * A class representation of a generic b-tree
+ */
+export class BTree<Type> {
+  /**
+   * The root node of the tree
+   */
+  root: BTreeNode<Type>
+
+  /**
+   * The order of the tree which restricts the minimum and maximum number of keys in a node
+   */
   order: number
-  root: Node
-  height: number
+
   constructor (order: number) {
+    this.root = new BTreeNode<Type>()
     this.order = order
-    this.root = new Node()
-    this.height = 1
   }
 
-  getLeftNeighborNode (node: Node): Node | null {
-    // Node has no parents and thus no neighbours
-    if (!node.parent) return null
+  /**
+   * Searches the tree recursively for the given value
+   * @param value The searched for value
+   * @param node The Node to start search with (default = root)
+   * @returns The Node containing the value or null
+   */
+  findNode (value: Type, node: BTreeNode<Type> = this.root): BTreeNode<Type> | null {
+    // Node contains no elements
+    if (node.keys.length === 0) return null
 
-    // Look through parents childs
-    const nodeIndex = node.parent.children.indexOf(node)
-    // Check if node is the leftmost child
-    if (nodeIndex >= 1) {
-      return node.parent.children[nodeIndex - 1]
-    } else {
-      return null
+    // Node contains the target value => return this node
+    if (node.keys.some(key => key === value)) return node
+
+    // Has no children to continue search with => end search
+    if (node.isLeaf()) return null
+
+    // Continue search with next suitable child
+    let nextChildIndex = node.keys.findIndex(key => value < key)
+    if (nextChildIndex === -1) nextChildIndex = node.keys.length
+    return this.findNode(value, node.children[nextChildIndex])
+  }
+
+  /**
+   * Inserts a new key into the tree and splits all overfull nodes accordingly
+   * @param newKey New key to be inserted into the tree
+   */
+  insert (newKey: Type): void {
+    // Find an appropriate leaf node to insert into
+    const leafNode = this.getAppropriateLeafNode(newKey)
+
+    // Insert if the node is not full
+    if (!leafNode.isFull(this.order)) {
+      leafNode.insertKey(newKey)
+      return
     }
+
+    // Node has to be split since it is now overfull
+    leafNode.insertKey(newKey)
+    this.splitNode(leafNode)
   }
 
-  getRightNeighborNode (node: Node) {
-    // Node has no parents and thus no neighbours
-    if (!node.parent) return null
+  /**
+   * Returns the node in which the key should be inserted
+   * @param newKey New key to be inserted
+   * @param nodeToCheck current node to be checked
+   * @returns The appropriate node
+   */
+  getAppropriateLeafNode (newKey: Type, nodeToCheck: BTreeNode<Type> = this.root): BTreeNode<Type> {
+    // Return the node once a leafnode is reached
+    if (nodeToCheck.isLeaf()) return nodeToCheck
 
-    const nodeIndex = node.parent?.children.indexOf(node)
-    // Check if node is the rightmost child
-    if ((nodeIndex + 1) < node.parent.children.length) {
-      return node.parent.children[nodeIndex + 1]
-    } else {
-      return null
+    // Find the appropriate next child to check
+    let nextChildIndex = nodeToCheck.keys.findIndex(key => newKey < key)
+    if (nextChildIndex === -1) nextChildIndex = nodeToCheck.keys.length
+
+    // Traverse down the tree recursively
+    return this.getAppropriateLeafNode(newKey, nodeToCheck.children[nextChildIndex])
+  }
+
+  /**
+   * Splits a node along its median. The median gets transfered up into the parent while the parts to its left and right are the contents of the new child nodes.
+   * @param nodeToSplit The node that should be split
+   */
+  splitNode (nodeToSplit: BTreeNode<Type>) {
+    // Get the parent node to insert into or new node if the node to be split is the root
+    const parentNode = nodeToSplit.parent ? nodeToSplit.parent : new BTreeNode<Type>()
+
+    // New neighbor which will receive the right half of the keys and children
+    const neighborNode = new BTreeNode<Type>()
+
+    const median = nodeToSplit.keys[this.order]
+
+    // Put keys and children after the median into the new neighbor
+    neighborNode.keys = nodeToSplit.keys.slice(this.order + 1)
+    neighborNode.children = nodeToSplit.children.slice(this.order + 1)
+    neighborNode.children.forEach(child => {
+      child.parent = neighborNode
+    })
+
+    // Keep keys and children before the median in the old node
+    nodeToSplit.keys = nodeToSplit.keys.slice(0, this.order)
+    nodeToSplit.children = nodeToSplit.children.slice(0, this.order + 1) // Probably?
+
+    // Check whether parent has to be split later on
+    const parentNodeIsAlreadyFull = parentNode.isFull(this.order)
+
+    // Move median up into parent and link to new children
+    parentNode.insertKey(median)
+
+    // Only add node to parent if the parent was newly generated
+    if (!nodeToSplit.parent) parentNode.addChild(nodeToSplit)
+    parentNode.addChild(neighborNode)
+    if (!parentNode.parent) this.root = parentNode
+
+    // Split parent if necessary
+    if (parentNodeIsAlreadyFull) this.splitNode(parentNode)
+  }
+
+  /**
+   * Removes the target key from the tree (or subtree if given a node)
+   * @param target key to be removed
+   * @param nodeToCheck the node and its subsequent subtree in which the key is searched for. (default = root, but convenient for smart duplicate removal)
+   */
+  remove (target: Type, nodeToCheck: BTreeNode<Type> = this.root) {
+    // Find the node with the key
+    const containingNode = this.findNode(target, nodeToCheck)
+
+    // Return immediately if key does not exist
+    if (!containingNode) return
+
+    // Case 1: Key in internal node
+    if (!containingNode.isLeaf()) {
+      this.removeKeyFromInternalNode(target, containingNode)
+      return
     }
-  }
 
-  deleteValue (value: number, nodeToCheck: Node) {
-    let node: Node | null = this.findNode(value, nodeToCheck)
-    if (!node) {
-      console.log('Value does not exist in Tree.')
-    } else {
-      // If Leaf
-      if (node.isLeaf()) {
-        // No Underflow
-        if (!node.parent) return
-        if (node.keys.length > this.order) {
-          for (let i = 0; i < node.keys.length; i++) {
-            if (value === node.keys[i]) {
-              node.keys.splice(i, 1)
-            }
-          }
-        } else if (node.keys.length === this.order) {
-          // Underflow and NeighborNode (left or right) has k+1 -> Rotate
-          const leftNeighborNode = this.getLeftNeighborNode(node)
-          const rightNeighborNode = this.getRightNeighborNode(node)
+    // Case 2: Key in leaf
 
-          // If Underflow and left NeighborNode has k+1, steal value from left neighborNode
-          if (leftNeighborNode != null && leftNeighborNode.keys.length > this.order) {
-            for (let i = 0; i < node.parent.children.length; i++) {
-              if (node === node.parent.children[i]) {
-                for (let j = 0; j < node.keys.length; j++) {
-                  if (value === node.keys[j]) {
-                    node.keys.splice(j, 1)
-                  }
-                }
-                node.insertKey(node.parent.keys[i - 1], this.order)
-                node.parent.keys[i - 1] = leftNeighborNode.keys[leftNeighborNode.keys.length - 1]
-                leftNeighborNode.keys.splice(leftNeighborNode.keys.length - 1, 1)
-              }
-            }
-
-            // If Underflow and left NeighborNode has not k+1, but right NeighborNode has k+1, steal value from right neighborNode
-          } else if (rightNeighborNode != null && rightNeighborNode.keys.length > this.order) {
-            for (let i = 0; i < node.parent.children.length; i++) {
-              if (node === node.parent.children[i]) {
-                for (let j = 0; j < node.keys.length; j++) {
-                  if (value === node.keys[j]) {
-                    node.keys.splice(j, 1)
-                  }
-                }
-                node.insertKey(node.parent.keys[i], this.order)
-                node.parent.keys[i] = rightNeighborNode.keys[0]
-                rightNeighborNode.keys.splice(0, 1)
-              }
-            }
-          } else { // Underflow and both NeighborNodes have not k+1 -> Take value from ParentNode in deleted Node (Merge)
-            // If there is a left NeighborNode, merge with it
-            if (leftNeighborNode != null) {
-              for (let i = 0; i < node.parent.children.length; i++) {
-                if (node === node.parent.children[i]) {
-                  for (let j = 0; j < node.keys.length; j++) {
-                    if (value === node.keys[j]) {
-                      node.keys.splice(j, 1)
-                    }
-                  }
-                  node.insertKey(node.parent.keys[i - 1], this.order)
-                  node.parent.keys.splice(i - 1, 1)
-
-                  for (let j = 0; j < node.keys.length; j++) {
-                    leftNeighborNode.insertKey(node.keys[j], this.order)
-                  }
-                  node.parent.children.splice(i, 1)
-                }
-              }
-              if (node.parent.keys.length === 0 && !node.parent.parent) {
-                leftNeighborNode.parent = null
-                this.root = leftNeighborNode
-              }
-              // If there is not left NeighborNode, but a right one, merge with the right Node
-            } else if (rightNeighborNode) {
-              for (let i = 0; i < node.parent.children.length; i++) {
-                if (node === node.parent.children[i]) {
-                  for (let j = 0; j < node.keys.length; j++) {
-                    if (value === node.keys[j]) {
-                      node.keys.splice(j, 1)
-                    }
-                  }
-                  node.insertKey(node.parent.keys[i], this.order)
-                  node.parent.keys.splice(i, 1)
-
-                  for (let j = 0; j < node.keys.length; j++) {
-                    rightNeighborNode.insertKey(node.keys[j], this.order)
-                  }
-
-                  node.parent.children.splice(i, 1)
-                }
-              }
-              if (node.parent.keys.length === 0 && !node.parent.parent) {
-                rightNeighborNode.parent = null
-                this.root = rightNeighborNode
-              }
-            }
-            // If Parent has < k values because of merge, it gets values from neighbor or parent
-            if (node.parent.keys.length < this.order) {
-              console.log('Parent has not enough keys')
-              this.handleUnderflowInParent(node.parent)
-            }
-            node = null
-          }
-        }
-      } else { // If Node has Children
-        this.deleteValueInNode(value, node)
-      }
+    // Subcase 1: No Underflow -> Key can simply be removed
+    if (containingNode.keys.length > this.order) {
+      containingNode.keys = containingNode.keys.filter(key => key !== target)
+      return
     }
+
+    // Subcase 2: Underflow after removal -> Steal key
+
+    // Remove key
+    containingNode.keys = containingNode.keys.filter(key => key !== target)
+
+    this.handleUnderflow(containingNode)
   }
 
-  handleUnderflowInParent (node: any) {
-    // NeighborNode (left or right) has k+1
+  /**
+   * Removes the key from the node and rebalances the tree
+   * @param target key to be removed
+   * @param node node containing the key
+   */
+  removeKeyFromInternalNode (target: Type, node: BTreeNode<Type>) {
+    // Remove key
+    const keyPosition = node.keys.findIndex(key => key === target)
+    node.keys.splice(keyPosition, 1)
+    let tempChild = node.children[keyPosition]
 
-    const leftNeighborNode = this.getLeftNeighborNode(node)
-    const rightNeighborNode = this.getRightNeighborNode(node)
+    // Traverse to max value
+    while (!tempChild.isLeaf()) {
+      tempChild = tempChild.children[tempChild.children.length - 1]
+    }
 
-    if (leftNeighborNode != null && leftNeighborNode.keys.length > this.order) {
-      for (let i = 0; i < node.parent.children.length; i++) {
-        if (node === node.parent.children[i]) {
-          // Steal values
-          node.insertKey(node.parent.keys[i - 1], this.order)
-          node.parent.keys[i - 1] = leftNeighborNode.keys[leftNeighborNode.keys.length - 1]
-          leftNeighborNode.keys.splice(leftNeighborNode.keys.length - 1, 1)
+    // Take max value from max child and insert it in parent
+    const replaceValue = tempChild.keys[tempChild.keys.length - 1]
+    node.insertKey(replaceValue)
+    this.remove(replaceValue, tempChild)
+  }
 
-          // Assign children
-          const tempNodeChildren = []
-          tempNodeChildren.push(leftNeighborNode.children[leftNeighborNode.children.length - 1])
-          leftNeighborNode.children.splice(leftNeighborNode.children.length - 1, 1)
-          for (let i = 0; i < node.children.length; i++) {
-            tempNodeChildren.push(node.children[i])
-          }
-          node.children = []
-          for (let i = 0; i < tempNodeChildren.length; i++) {
-            node.addChild(tempNodeChildren[i])
-          }
-        }
+  /**
+   * Recursively fixes underflow issues from the node and its parent chain
+   * @param node the underflowing node
+   */
+  handleUnderflow (node: BTreeNode<Type>) {
+    const leftNeighborNode = node.getLeftNeighborNode()
+    const rightNeighborNode = node.getRightNeighborNode()
+
+    if (!node.parent) return // TODO Value in Root
+
+    const positionInParent = node.parent.children.findIndex(child => node === child)
+
+    // Check neighbors and parent to steal from
+    if (leftNeighborNode && leftNeighborNode.keys.length > this.order) { // Steal from left neighbor
+      // Move key from parent into containing node
+      node.insertKey(node.parent.keys[positionInParent - 1])
+
+      // Move key from neighbor into parent overwriting the duplicate in the parent
+      node.parent.keys[positionInParent - 1] = leftNeighborNode.keys[leftNeighborNode.keys.length - 1]
+
+      // Remove duplicate in the neighbor
+      leftNeighborNode.keys.splice(leftNeighborNode.keys.length - 1, 1)
+    } else if (rightNeighborNode && rightNeighborNode.keys.length > this.order) { // Steal from right neighbor
+      // Move key from parent into containing node
+      node.insertKey(node.parent.keys[positionInParent])
+
+      // Move key from neighbor into parent overwriting the duplicate in the parent
+      node.parent.keys[positionInParent] = rightNeighborNode.keys[0]
+
+      // Remove duplicate in the neighbor
+      rightNeighborNode.keys.splice(0, 1)
+    } else if (leftNeighborNode) { // Merge with left neighbor
+      // Move key from parent into containing node
+      node.insertKey(node.parent.keys[positionInParent - 1])
+
+      // Remove duplicate in parent
+      node.parent.keys.splice(positionInParent - 1, 1)
+
+      // Move all remaining keys from node into neighbor to merge
+      node.keys.forEach(key => leftNeighborNode.insertKey(key))
+
+      // Remove the node after merging
+      node.parent.children.splice(positionInParent, 1)
+
+      // If Parent Node empty now, delete
+      if (node.parent.keys.length === 0 && node.parent.parent == null) {
+        leftNeighborNode.parent = null
+        this.root = leftNeighborNode
       }
-    } else if (rightNeighborNode != null && rightNeighborNode.keys.length > this.order) {
-      for (let i = 0; i < node.parent.children.length; i++) {
-        if (node === node.parent.children[i]) {
-          // Steal values
-          node.insertKey(node.parent.keys[i], this.order)
-          node.parent.keys[i] = rightNeighborNode.keys[0]
-          rightNeighborNode.keys.splice(0, 1)
+    } else if (rightNeighborNode) { // Merge with right neighbor
+      // Move key from parent into containing node
+      node.insertKey(node.parent.keys[positionInParent])
 
-          // Assign children
-          const tempNodeChildren = []
-          tempNodeChildren.push(rightNeighborNode.children[0])
-          rightNeighborNode.children.splice(0, 1)
-          for (let i = 0; i < node.children.length; i++) {
-            tempNodeChildren.push(node.children[i])
-          }
-          node.children = []
-          for (let i = 0; i < tempNodeChildren.length; i++) {
-            node.addChild(tempNodeChildren[i])
-          }
-        }
+      // Remove duplicate in parent
+      node.parent.keys.splice(positionInParent, 1)
+
+      // Move all remaining keys from node into neighbor to merge
+      node.keys.forEach(key => rightNeighborNode.insertKey(key))
+
+      // Remove the node after merging
+      node.parent.children.splice(positionInParent, 1)
+
+      // If Parent Node empty now, delete
+      if (node.parent.keys.length === 0 && !node.parent.parent) {
+        rightNeighborNode.parent = null
+        this.root = rightNeighborNode
       }
-    } else {
-      // No NeighborNode with k+1, merge with left or right NeighborNode
-      // If there is a left NeighborNode, merge with it
-      if (leftNeighborNode != null) {
-        for (let i = 0; i < node.parent.children.length; i++) {
-          if (node === node.parent.children[i]) {
-            node.insertKey(node.parent.keys[i - 1], this.order)
-            node.parent.keys.splice(i - 1, 1)
-            node.parent.children.splice(i, 1)
-            for (let j = 0; j < node.keys.length; j++) {
-              leftNeighborNode.insertKey(node.keys[j], this.order)
-            }
 
-            // Handle children
-            for (let j = 0; j < node.children.length; j++) {
-              leftNeighborNode.addChild(node.children[j])
-            }
-          }
-        }
-
-        // If Parent Node empty now, delete
-        if (node.parent.keys.length === 0 && !node.parent.parent) {
-          leftNeighborNode.parent = null
-          this.root = leftNeighborNode
-        }
-      } else if (rightNeighborNode != null) { // If there is no left NeighborNode, but a right NeighborNode, merge with right NeighborNode
-        for (let i = 0; i < node.parent.children.length; i++) {
-          if (node === node.parent.children[i]) {
-            node.insertKey(node.parent.keys[i], this.order)
-            node.parent.keys.splice(i, 1)
-            node.parent.children.splice(i, 1)
-            for (let j = 0; j < node.keys.length; j++) {
-              rightNeighborNode.insertKey(node.keys[j], this.order)
-            }
-
-            // Handle children
-            for (let j = 0; j < node.children.length; j++) {
-              rightNeighborNode.addChild(node.children[j])
-            }
-          }
-        }
-        if (node.parent.keys.length === 0 && !node.parent.parent) {
-          rightNeighborNode.parent = null
-          this.root = rightNeighborNode
-        }
-      }
+      // Handle underflow in next parent
       if (node.parent) {
         if (node.parent.keys.length < this.order && node.parent.parent) {
-          this.handleUnderflowInParent(node.parent)
+          this.handleUnderflow(node.parent)
         }
-      }
-
-      node = null
-    }
-  }
-
-  deleteValueInNode (value: number, node: Node) {
-    let tempChildNode = new Node()
-
-    // Delete value from Node
-    for (let i = 0; i < node.keys.length; i++) {
-      if (value === node.keys[i]) {
-        node.keys.splice(i, 1)
-      }
-      tempChildNode = node.children[i]
-    }
-    // Traverse to max value
-    while (!tempChildNode.isLeaf()) {
-      tempChildNode = tempChildNode.children[tempChildNode.children.length - 1]
-    }
-    // Take max value from max child and insert it in parent
-    const replaceValue = tempChildNode.keys[tempChildNode.keys.length - 1]
-    node.insertKey(replaceValue, this.order)
-
-    this.deleteValue(replaceValue, tempChildNode)
-  }
-
-  findValue (value: number, nodeToCheck: Node) {
-    const node = this.findNode(value, nodeToCheck)
-    if (node == null) {
-      return null
-    } else {
-      for (let i = 0; i < node.keys.length; i++) {
-        if (value === node.keys[i]) {
-          return node.keys[i]
-        }
-      }
-    }
-  }
-
-  findNode (value: number, nodeToCheck: Node): Node | null {
-    // Check if current node contains the given value
-    if (nodeToCheck.keys.find(key => key === value)) return nodeToCheck
-
-    if (nodeToCheck.isLeaf()) return null
-
-    for (let i = 0; i < nodeToCheck.keys.length; i++) {
-      if (value < nodeToCheck.keys[i]) {
-        return this.findNode(value, nodeToCheck.children[i])
-      } else if (nodeToCheck.keys[i] < value && !nodeToCheck.keys[i + 1]) {
-        return this.findNode(value, nodeToCheck.children[i + 1])
-      }
-    }
-    return null
-  }
-
-  insertKey (newKey: number) {
-    const leafNode = this.getLeafNode(newKey, this.root)
-
-    // If leafNode is not full, insert
-    if (!leafNode.isFull(this.order)) {
-      leafNode.insertKey(newKey, this.order)
-    } else {
-      // If leafNode is not full, split
-      // Insert 2k+1 values in node
-      for (let i = 0; i <= this.order * 2; i++) {
-        if (newKey < leafNode.keys[i] || !leafNode.keys[i]) {
-          leafNode.keys.splice(i, 0, newKey)
-          break
-        }
-      }
-      // Split Node with 2k+1 values
-      this.split(leafNode, this.order)
-    }
-  }
-
-  getLeafNode (newKey: number, nodeToCheck: Node): Node {
-    if (nodeToCheck.isLeaf()) {
-      return nodeToCheck
-    } else {
-      for (let i = 0; i < nodeToCheck.keys.length; i++) {
-        if (newKey < nodeToCheck.keys[i]) {
-          return this.getLeafNode(newKey, nodeToCheck.children[i])
-        } else if (nodeToCheck.keys[i] < newKey && !nodeToCheck.keys[i + 1]) {
-          return this.getLeafNode(newKey, nodeToCheck.children[i + 1])
-        }
-      }
-      throw Error('Invalid tree!')
-    }
-  }
-
-  split (nodeToSplit: Node, order: number) {
-    // Create new parent and neighbor Node
-    let parentNode = new Node()
-    if (nodeToSplit.parent) parentNode = nodeToSplit.parent
-    const neighborNode = new Node()
-
-    // Insert values in new neighbor Node
-    const insertInParent = nodeToSplit.keys[order]
-    for (let i = order + 1; i <= order * 2; i++) {
-      neighborNode.keys.push(nodeToSplit.keys[i])
-      if (nodeToSplit.children.length !== 0) {
-        nodeToSplit.children[i].parent = neighborNode
-        neighborNode.children.push(nodeToSplit.children[i])
-        if (nodeToSplit.keys[i + 1] == null) {
-          nodeToSplit.children[i + 1].parent = neighborNode
-          neighborNode.children.push(nodeToSplit.children[i + 1])
-        }
-      }
-    }
-    // Delete values from nodeToSplit, which were inserted into new neighbor Node
-    while (nodeToSplit.keys[order]) {
-      nodeToSplit.keys.splice(order, 1)
-      if (nodeToSplit.children.length !== 0) {
-        nodeToSplit.children.splice(order + 1, 1)
-      }
-    }
-
-    if (!parentNode.isFull(this.order)) {
-      // Insert key in parent
-      parentNode.insertKey(insertInParent, this.order)
-      // Add children to parent Node
-      if (nodeToSplit.parent == null) {
-        parentNode.addChild(nodeToSplit)
-      }
-      parentNode.addChild(neighborNode)
-      // If parent has no parent, set parent as new root
-      if (!parentNode.parent) this.root = parentNode
-    } else {
-      for (let i = 0; i <= this.order * 2; i++) {
-        if (insertInParent < parentNode.keys[i] || !parentNode.keys[i]) {
-          parentNode.keys.splice(i, 0, insertInParent)
-          break
-        }
-      }
-      if (!nodeToSplit.parent) {
-        parentNode.addChild(nodeToSplit)
-      }
-      parentNode.addChild(neighborNode)
-
-      this.split(parentNode, this.order)
-    }
-  }
-
-  getDepth () {
-    let currentNode = this.root
-    let depth = 1
-    while (currentNode.children[0]) {
-      depth += 1
-      currentNode = currentNode.children[0]
-    }
-    return depth
-  }
-
-  printTree () {
-    const currentNode = this.root
-    const depth = this.getDepth()
-    const depthCounter = 0
-    const stringsLevel = []
-    // Insert empty strings into array, so there is no "undefined" in front of each entry
-    for (let i = 0; i < depth; i++) {
-      stringsLevel.push('')
-    }
-    // Recursive printNode-function fills stringsLevel-Array
-    this.printNode(currentNode, stringsLevel, depthCounter)
-    // Print stringsLevel-Array with few space shiftings
-    const stringSpace = '         '
-    let stringMultiplier = stringsLevel.length - 1
-    for (let i = 0; i < stringsLevel.length; i++) {
-      for (let j = 0; j < stringMultiplier; j++) {
-        stringsLevel[i] = stringSpace + stringsLevel[i]
-      }
-      stringMultiplier -= 1
-      console.log(stringsLevel[i])
-    }
-  }
-
-  // returnTree is the same method as printTree, the only difference is, that this method returns the stringsLevel-Array instead of printing it in console
-  returnTree () {
-    const currentNode = this.root
-    const depth = this.getDepth()
-    const depthCounter = 0
-    const stringsLevel = []
-    // Insert empty strings into array, so there is no "undefined" in front of each entry
-    for (let i = 0; i < depth; i++) {
-      stringsLevel.push('')
-    }
-    // Recursive printNode-function fills stringsLevel-Array
-    this.printNode(currentNode, stringsLevel, depthCounter)
-    return stringsLevel
-  }
-
-  printNode (node: Node, stringsLevel: any, depth: number) {
-    stringsLevel[depth] += '|' + node.keys + '|  '
-    if (!node.isLeaf()) {
-      depth += 1
-      for (let i = 0; i < node.children.length; i++) {
-        this.printNode(node.children[i], stringsLevel, depth)
-      }
-    }
-  }
-
-  returnTreeObject () {
-    const currentNode = this.root
-    const depth = this.getDepth()
-    const depthCounter = 0
-    const stringsLevel = []
-    // Insert empty strings into array, so there is no "undefined" in front of each entry
-    for (let i = 0; i < depth; i++) {
-      const array: any = []
-      stringsLevel.push(array)
-    }
-    // Recursive printNode-function fills stringsLevel-Array
-    this.printNodeObject(currentNode, stringsLevel, depthCounter)
-    return stringsLevel
-  }
-
-  printNodeObject (node: Node, stringsLevel: any, depth: number) {
-    stringsLevel[depth].push(node)
-    if (!node.isLeaf()) {
-      depth += 1
-      for (let i = 0; i < node.children.length; i++) {
-        this.printNodeObject(node.children[i], stringsLevel, depth)
       }
     }
   }
