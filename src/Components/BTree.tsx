@@ -4,31 +4,31 @@ import { TreeHeader } from './TreeHeader'
 
 export const BTree = () => {
   const [treeType, setTreeType] = useState(1)
+  const [canvasHelper, setCanvasHelper] = useState<CanvasHelper<Number>>()
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  let canvasHelper: CanvasHelper<Number>
 
   function handleInsertion (key: any) {
-    canvasHelper.insert(Number(key))
+    if (canvasHelper) canvasHelper.insert(Number(key))
   }
 
   function handleDeletion (key: any) {
-    canvasHelper.remove(Number(key))
+    if (canvasHelper) canvasHelper.remove(Number(key))
   }
 
-  function handleReset () {
-    canvasHelper.resetTree()
+  function handleReset (treeType?: number) {
+    if (canvasHelper) canvasHelper.resetTree(treeType)
   }
 
   useEffect(() => {
     // Initialize canvasHelper with null handling
     const canvas = canvasRef.current
     if (!canvas) throw Error('Could not find canvas reference!')
-    canvasHelper = new CanvasHelper<Number>(canvas, treeType)
+    setCanvasHelper(new CanvasHelper<Number>(canvas, treeType))
   }, [])
 
   useEffect(() => {
     // Handle tree type changes by resetting the tree and setting the new type
-    canvasHelper.resetTree(treeType)
+    handleReset(treeType)
   }, [treeType])
 
   return (
