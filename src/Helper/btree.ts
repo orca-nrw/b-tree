@@ -20,6 +20,29 @@ export class BTree<Type> {
   }
 
   /**
+   * Steps through the tree to calculate its height
+   */
+  getHeight () {
+    let currentNode = this.root
+    let depth = 1
+    while (currentNode.children[0]) {
+      depth += 1
+      currentNode = currentNode.children[0]
+    }
+    return depth
+  }
+
+  /**
+   * Helper function to check for the presence of a key
+   * @param key A key to be searched for
+   * @returns Whether the key is in the tree
+   */
+  contains (key: Type) {
+    if (this.findNode(key)) return true
+    else return false
+  }
+
+  /**
    * Searches the tree recursively for the given value
    * @param value The searched for value
    * @param node The Node to start search with (default = root)
