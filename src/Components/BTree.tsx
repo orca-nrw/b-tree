@@ -8,15 +8,18 @@ export const BTree = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   function handleInsertion (key: any) {
-    if (canvasHelper) canvasHelper.insert(Number(key))
+    if (!canvasHelper) return
+    if (!isNaN(key)) canvasHelper.insert(Number(key))
   }
 
   function handleDeletion (key: any) {
-    if (canvasHelper) canvasHelper.remove(Number(key))
+    if (!canvasHelper) return
+    if (!isNaN(key)) canvasHelper.remove(Number(key))
   }
 
   function handleReset (treeType?: number) {
-    if (canvasHelper) canvasHelper.resetTree(treeType)
+    if (!canvasHelper) return
+    canvasHelper.resetTree(treeType)
   }
 
   useEffect(() => {
