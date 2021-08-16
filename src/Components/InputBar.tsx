@@ -17,7 +17,19 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, tree
     setInsertValue('')
   }
 
+  function handleKeyDownInsert (event: React.KeyboardEvent) {
+    if (!(event.key === 'Enter')) return
+    insertionHandler(insertValue)
+    setInsertValue('')
+  }
+
   function onDelete (event: React.FormEvent<HTMLButtonElement>) {
+    deletionHandler(deletionValue)
+    setDeletionValue('')
+  }
+
+  function handleKeyDownDelete (event: React.KeyboardEvent) {
+    if (!(event.key === 'Enter')) return
     deletionHandler(deletionValue)
     setDeletionValue('')
   }
@@ -45,10 +57,10 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, tree
       </h1>
       <div className="flex flex-col items-end">
         <form className="space-x-2">
-          <input className="p-1 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={insertValue} onChange={handleInsertionInput} />
+          <input className="p-1 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={insertValue} onChange={handleInsertionInput} onKeyDown={handleKeyDownInsert} />
           <button className="bg-purple-500 hover:bg-purple-600 text-white p-1 rounded-md cursor-pointer" type="button" value="insert" onClick={onInsert}>Einfügen</button>
 
-          <input className="p-1 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={deletionValue} onChange={handleDeletionInput} />
+          <input className="p-1 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={deletionValue} onChange={handleDeletionInput} onKeyDown={handleKeyDownDelete} />
           <button className="bg-purple-500 hover:bg-purple-600 text-white p-1 rounded-md cursor-pointer" type="button" value="delete" onClick={onDelete}>Löschen</button>
 
           <button className="bg-purple-500 hover:bg-purple-600 text-white p-1 rounded-md cursor-pointer" type="button" value="reset" onClick={onReset}>Zurücksetzen</button>
