@@ -167,10 +167,10 @@ export class CanvasHelper<Type> {
       const canvasNode = new CanvasNode(borderSpace, height)
 
       for (let nodeIndex = 0; nodeIndex < nodeMatrix[levelIndex].length; nodeIndex++) {
-        if (!nodeMatrix[levelIndex][nodeIndex].isLeaf) {
-          const difference = nodeMatrix[levelIndex][nodeIndex].children[nodeMatrix[levelIndex][nodeIndex].children.length - 1].x + (nodeMatrix[levelIndex][nodeIndex].children[nodeMatrix[levelIndex][nodeIndex].children.length - 1].keys.length * 55) - nodeMatrix[levelIndex][nodeIndex].children[0].x
+        if (!nodeMatrix[levelIndex][nodeIndex].isLeaf()) {
+          const difference = nodeMatrix[levelIndex][nodeIndex].children[nodeMatrix[levelIndex][nodeIndex].children.length - 1].x + (nodeMatrix[levelIndex][nodeIndex].children[nodeMatrix[levelIndex][nodeIndex].children.length - 1].keys.length * nodeWidth) - nodeMatrix[levelIndex][nodeIndex].children[0].x
           canvasNode.x = nodeMatrix[levelIndex][nodeIndex].children[0].x + difference / 2
-          canvasNode.y = (nodeMatrix[levelIndex][nodeIndex].keys.length * levelHeight) / 2
+          canvasNode.x -= (nodeMatrix[levelIndex][nodeIndex].keys.length * nodeWidth) / 2
         }
 
         for (let keyIndex = 0; keyIndex < nodeMatrix[levelIndex][nodeIndex].keys.length; keyIndex++) {
