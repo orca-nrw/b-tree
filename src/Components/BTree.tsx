@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { CanvasHelper } from '../Helper/CanvasHelper'
-import { TreeHeader } from './TreeHeader'
+import { InputBar } from './InputBar'
 
 export const BTree = () => {
   const [treeType, setTreeType] = useState(1)
@@ -32,8 +32,8 @@ export const BTree = () => {
   }, [treeType])
 
   return (
-    <div className="mx-0 my-5 bg-white">
-      <TreeHeader
+    <div className="bg-white">
+      <InputBar
         insertionHandler={handleInsertion}
         deletionHandler={handleDeletion}
         resetHandler={handleReset}

@@ -5,7 +5,7 @@ import { Footer } from './Components/Footer'
 
 const App = () => {
   return (
-    <div className="max-w-screen-xl mx-auto my-0 flex flex-col justify-center">
+    <div className="max-w-screen-xl space-y-4 mx-auto my-0 flex flex-col justify-center">
       <Header />
       <BTree />
       <Footer />
