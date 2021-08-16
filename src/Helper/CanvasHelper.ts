@@ -28,11 +28,13 @@ export class CanvasHelper<Type> {
    */
   btree: BTree<Type>
 
+  idealCanvasHeight = 500
+
   constructor (canvasReference: HTMLCanvasElement, treeOrder: number) {
     // Save canvas reference
     this.canvas = canvasReference
-    this.canvas.width = 750
-    this.canvas.height = 750
+    this.canvas.width = this.canvas.parentElement ? this.canvas.parentElement.scrollWidth : 750
+    this.canvas.height = this.idealCanvasHeight
 
     // Savely extract the context
     const tempContext = this.canvas.getContext('2d')
@@ -66,6 +68,9 @@ export class CanvasHelper<Type> {
       return
     }
 
+    // Check if canvas should be resized to better fit the contents
+    this.checkCanvasSize()
+
     let currentHeight = initialHight
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
@@ -89,7 +94,12 @@ export class CanvasHelper<Type> {
 
     this.drawTree(currentHeight)
 
-    // TODO: Check canvas height
+    currentHeight += levelHeight * (this.btree.getHeight() + 1)
+
+    // Buffer resizing if next layer would not fit on canvas
+    if (this.canvas.height < currentHeight + 55) {
+      this.idealCanvasHeight = currentHeight + 55
+    }
   }
 
   remove (key: Type) {
@@ -100,6 +110,9 @@ export class CanvasHelper<Type> {
       this.drawUpdateText(validationResult.error)
       return
     }
+
+    // Check if canvas should be resized to better fit the contents
+    this.checkCanvasSize()
 
     let currentHeight = initialHight
     this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
@@ -124,7 +137,19 @@ export class CanvasHelper<Type> {
 
     this.drawTree(currentHeight)
 
-    // TODO: Check canvas height
+    // Buffer resizing if canvas is now larger than necessary
+    currentHeight += levelHeight * (this.btree.getHeight() + 1)
+
+    if (this.canvas.height > currentHeight + 55) {
+      this.idealCanvasHeight = currentHeight + 55
+    }
+  }
+
+  checkCanvasSize () {
+    if (this.canvas.height !== this.idealCanvasHeight) {
+      this.canvas.height = this.idealCanvasHeight
+      this.context.textAlign = 'center'
+    }
   }
 
   validateInsertion (key: Type): ValidationResult {
