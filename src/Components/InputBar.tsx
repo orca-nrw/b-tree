@@ -8,7 +8,7 @@ interface Props {
   setTreeType: (x: number) => void
 }
 
-export const TreeHeader = ({ insertionHandler, deletionHandler, resetHandler, treeType, setTreeType }: Props) => {
+export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, treeType, setTreeType }: Props) => {
   const [insertValue, setInsertValue] = useState('')
   const [deletionValue, setDeletionValue] = useState('')
 
@@ -39,11 +39,11 @@ export const TreeHeader = ({ insertionHandler, deletionHandler, resetHandler, tr
   }
 
   return (
-    <div className="flex justify-between">
-      <h1 className="text-4xl m-4 font-mono">
+    <div className="p-4 flex justify-between">
+      <h1 className="text-4xl font-mono">
         B-Baum-Zeichner
       </h1>
-      <div className="p-4 flex flex-col items-end">
+      <div className="flex flex-col items-end">
         <form className="space-x-2">
           <input className="p-1 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={insertValue} onChange={handleInsertionInput} />
           <button className="bg-purple-500 hover:bg-purple-600 text-white p-1 rounded-md cursor-pointer" type="button" value="insert" onClick={onInsert}>Einfügen</button>
