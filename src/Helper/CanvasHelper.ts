@@ -137,9 +137,9 @@ export class CanvasHelper<Type> {
 
     this.drawTree(currentHeight)
 
-    // Buffer resizing if canvas is now larger than necessary
     currentHeight += levelHeight * (this.btree.getHeight() + 1)
 
+    // Buffer resizing if canvas is now larger than necessary
     if (this.canvas.height > currentHeight + 55) {
       this.idealCanvasHeight = currentHeight + 55
     }
