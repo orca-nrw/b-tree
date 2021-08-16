@@ -56,16 +56,17 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, tree
         B-Baum-Zeichner
       </h1>
       <div className="flex flex-col items-end">
-        <form className="space-x-2">
-          <input className="p-1 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={insertValue} onChange={handleInsertionInput} onKeyDown={handleKeyDownInsert} />
-          <button className="bg-purple-500 hover:bg-purple-600 text-white p-1 rounded-md cursor-pointer" type="button" value="insert" onClick={onInsert}>Einfügen</button>
+        <div className="flex flex-row">
+          <input className="p-1 mr-2 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={insertValue} onChange={handleInsertionInput} onKeyDown={handleKeyDownInsert} />
+          <button className="mr-4 bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="insert" onClick={onInsert}>Einfügen</button>
 
-          <input className="p-1 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={deletionValue} onChange={handleDeletionInput} onKeyDown={handleKeyDownDelete} />
-          <button className="bg-purple-500 hover:bg-purple-600 text-white p-1 rounded-md cursor-pointer" type="button" value="delete" onClick={onDelete}>Löschen</button>
+          <input className="p-1 mr-2 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={deletionValue} onChange={handleDeletionInput} onKeyDown={handleKeyDownDelete} />
+          <button className="mr-4 bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="delete" onClick={onDelete}>Löschen</button>
 
-          <button className="bg-purple-500 hover:bg-purple-600 text-white p-1 rounded-md cursor-pointer" type="button" value="reset" onClick={onReset}>Zurücksetzen</button>
-        </form>
-        <form className="mt-2 space-x-3 flex flex-row">
+          <button className="bg-purple-500 hover:bg-purple-600 text-white px-2 py-0 rounded-md cursor-pointer" type="button" value="reset" onClick={onReset}>Zurücksetzen</button>
+
+        </div>
+        <div className="mt-2 space-x-3 flex flex-row">
           <label className="mr-2 font-semibold" htmlFor="treeType1">Typ des Baums:</label>
 
           <div>
@@ -92,7 +93,7 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, tree
             <input className="mr-1" type="radio" name="treeType" id="treeType5" value={5} checked={treeType === 5} onChange={onTreeTypeChange} />
             <label className="text-sm" htmlFor="treeType5">Typ 5</label>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   )
