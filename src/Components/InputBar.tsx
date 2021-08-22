@@ -65,15 +65,15 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, degr
       <h1 className="text-4xl font-mono">
         B-Baum-Zeichner
       </h1>
-      <div className="flex flex-col items-end">
+      <div className="flex flex-col items-end space-y-2">
         <div className="flex flex-row">
           <input className="p-1 mr-2 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={insertValue} onChange={handleInsertionInput} onKeyDown={handleKeyDownInsert} />
-          <button className="mr-4 bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="insert" onClick={onInsert}>Einfügen</button>
+          <button className="mr-4 bg-purple-500 hover:bg-purple-600 hover:shadow-md text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="insert" onClick={onInsert}>Einfügen</button>
 
           <input className="p-1 mr-2 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={deletionValue} onChange={handleDeletionInput} onKeyDown={handleKeyDownDelete} />
-          <button className="mr-4 bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="delete" onClick={onDelete}>Löschen</button>
+          <button className="mr-4 bg-purple-500 hover:bg-purple-600 hover:shadow-md text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="delete" onClick={onDelete}>Löschen</button>
 
-          <button className="bg-purple-500 hover:bg-purple-600 text-white px-2 py-0 rounded-md cursor-pointer" type="button" value="reset" onClick={onReset}>Zurücksetzen</button>
+          <button className="bg-purple-500 hover:bg-purple-600 hover:shadow-md text-white px-2 py-0 rounded-md cursor-pointer" type="button" value="reset" onClick={onReset}>Zurücksetzen</button>
 
         </div>
         <div className="mt-2 space-x-3 flex flex-row">
@@ -105,8 +105,8 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, degr
           </div>
         </div>
         <div>
-          <label htmlFor="treeType">Typ des Baums</label>
-          <select id="treeType" onChange={onTypeChange}>
+          <label className="mr-2 font-semibold" htmlFor="treeType">Typ des Baums:</label>
+          <select className="border rounded border-black" id="treeType" onChange={onTypeChange}>
             <option value="number">Zahlen</option>
             <option value="string">Strings</option>
           </select>
