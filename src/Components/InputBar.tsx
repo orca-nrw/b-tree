@@ -77,7 +77,7 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, degr
 
         </div>
         <div className="mt-2 space-x-3 flex flex-row">
-          <label className="mr-2 font-semibold" htmlFor="degree1">Typ des Baums:</label>
+          <label className="mr-2 font-semibold" htmlFor="degree1">Grad des Baums:</label>
 
           <div>
             <input className="mr-1" type="radio" name="degree" id="degree1" value={1} checked={degree === 1} onChange={onDegreeChange} />
