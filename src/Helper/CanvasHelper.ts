@@ -116,13 +116,21 @@ export class CanvasHelper<Type> {
     }
   }
 
-  remove (key: Type) {
+  remove (input: Type) {
     // Validate input
-    const validationResult = this.validateRemoval(key)
+    const validationResult = this.validateRemoval(input)
     if (!validationResult.isValid) {
       if (!validationResult.error) throw Error('No validation error message found!')
       this.drawUpdateText(validationResult.error)
       return
+    }
+
+    let key: any
+
+    if (this.treeType === 'number') {
+      key = Number(input)
+    } else {
+      key = input
     }
 
     // Check if canvas should be resized to better fit the contents
@@ -166,7 +174,7 @@ export class CanvasHelper<Type> {
     }
   }
 
-  validateInsertion (key: Type): ValidationResult {
+  validateInsertion (key: any): ValidationResult {
     if (this.btree.contains(key)) return { isValid: false, error: 'Der Wert ist bereits vorhanden!' }
 
     if (this.treeType === 'number' && isNaN(Number(key))) return { isValid: false, error: 'Dieser Baumtyp nimmt nur Zahlen an!' }
@@ -174,7 +182,8 @@ export class CanvasHelper<Type> {
     return { isValid: true }
   }
 
-  validateRemoval (key: Type): ValidationResult {
+  validateRemoval (key: any): ValidationResult {
+    if (this.treeType === 'number') key = Number(key)
     if (!this.btree.contains(key)) return { isValid: false, error: 'Der Wert ist nicht vorhanden!' }
 
     return { isValid: true }
