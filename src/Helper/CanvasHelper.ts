@@ -28,9 +28,14 @@ export class CanvasHelper<Type> {
    */
   btree: BTree<Type>
 
+  /**
+   * Type of the tree (string or number) for runtime typechecking
+   */
+  treeType: string
+
   idealCanvasHeight = 500
 
-  constructor (canvasReference: HTMLCanvasElement, treeOrder: number) {
+  constructor (canvasReference: HTMLCanvasElement, treeOrder: number, type: string) {
     // Save canvas reference
     this.canvas = canvasReference
     this.canvas.width = this.canvas.parentElement ? this.canvas.parentElement.scrollWidth : 750
@@ -44,6 +49,7 @@ export class CanvasHelper<Type> {
 
     // Initialize BTree
     this.btree = new BTree<Type>(treeOrder)
+    this.treeType = type
   }
 
   /**
@@ -59,13 +65,21 @@ export class CanvasHelper<Type> {
     // Maybe add info text
   }
 
-  insert (key: Type) {
+  insert (input: Type) {
     // Validate input
-    const validationResult = this.validateInsertion(key)
+    const validationResult = this.validateInsertion(input)
     if (!validationResult.isValid) {
       if (!validationResult.error) throw Error('No validation error message found!')
       this.drawUpdateText(validationResult.error)
       return
+    }
+
+    let key: any
+
+    if (this.treeType === 'number') {
+      key = Number(input)
+    } else {
+      key = input
     }
 
     // Check if canvas should be resized to better fit the contents
@@ -154,6 +168,8 @@ export class CanvasHelper<Type> {
 
   validateInsertion (key: Type): ValidationResult {
     if (this.btree.contains(key)) return { isValid: false, error: 'Der Wert ist bereits vorhanden!' }
+
+    if (this.treeType === 'number' && isNaN(Number(key))) return { isValid: false, error: 'Dieser Baumtyp nimmt nur Zahlen an!' }
 
     return { isValid: true }
   }
