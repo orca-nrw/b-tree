@@ -1,17 +1,20 @@
 import React, { useState } from 'react'
 
 interface Props {
-  insertionHandler: (x: any) => void,
-  deletionHandler: (x: any) => void,
+  insertionHandler: (input: string) => void,
+  deletionHandler: (input: string) => void,
   resetHandler: () => void,
-  treeType: number,
-  setTreeType: (x: number) => void
+  degree: number,
+  setDegree: (x: number) => void,
+  treeType: string,
+  setTreeType: (newTreeType: string) => void
 }
 
-export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, treeType, setTreeType }: Props) => {
+export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, degree, setDegree, treeType, setTreeType }: Props) => {
   const [insertValue, setInsertValue] = useState('')
   const [deletionValue, setDeletionValue] = useState('')
 
+  // Insertion
   function onInsert (event: React.FormEvent<HTMLButtonElement>) {
     insertionHandler(insertValue)
     setInsertValue('')
@@ -23,6 +26,11 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, tree
     setInsertValue('')
   }
 
+  function handleInsertionInput (event: React.FormEvent<HTMLInputElement>) {
+    setInsertValue(event.currentTarget.value)
+  }
+
+  // Deletion
   function onDelete (event: React.FormEvent<HTMLButtonElement>) {
     deletionHandler(deletionValue)
     setDeletionValue('')
@@ -34,20 +42,22 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, tree
     setDeletionValue('')
   }
 
-  function onReset (e: React.FormEvent<HTMLButtonElement>) {
-    resetHandler()
-  }
-
-  function handleInsertionInput (event: React.FormEvent<HTMLInputElement>) {
-    setInsertValue(event.currentTarget.value)
-  }
-
   function handleDeletionInput (event: React.FormEvent<HTMLInputElement>) {
     setDeletionValue(event.currentTarget.value)
   }
 
-  function onTreeTypeChange (e: React.FormEvent<HTMLInputElement>) {
-    setTreeType(Number(e.currentTarget.value))
+  // Resets
+  function onReset (e: React.FormEvent<HTMLButtonElement>) {
+    resetHandler()
+  }
+
+  function onDegreeChange (e: React.FormEvent<HTMLInputElement>) {
+    setDegree(Number(e.currentTarget.value))
+  }
+
+  // TreeType Toggle
+  function onTypeChange (e: React.FormEvent<HTMLSelectElement>) {
+    setTreeType(e.currentTarget.value)
   }
 
   return (
@@ -67,32 +77,39 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, tree
 
         </div>
         <div className="mt-2 space-x-3 flex flex-row">
-          <label className="mr-2 font-semibold" htmlFor="treeType1">Typ des Baums:</label>
+          <label className="mr-2 font-semibold" htmlFor="degree1">Typ des Baums:</label>
 
           <div>
-            <input className="mr-1" type="radio" name="treeType" id="treeType1" value={1} checked={treeType === 1} onChange={onTreeTypeChange} />
-            <label className="text-sm" htmlFor="treeType1">Typ 1</label>
+            <input className="mr-1" type="radio" name="degree" id="degree1" value={1} checked={degree === 1} onChange={onDegreeChange} />
+            <label className="text-sm" htmlFor="degree1">Grad 1</label>
           </div>
 
           <div>
-            <input className="mr-1" type="radio" name="treeType" id="treeType2" value={2} checked={treeType === 2} onChange={onTreeTypeChange} />
-            <label className="text-sm" htmlFor="treeType2">Typ 2</label>
+            <input className="mr-1" type="radio" name="degree" id="degree2" value={2} checked={degree === 2} onChange={onDegreeChange} />
+            <label className="text-sm" htmlFor="degree2">Grad 2</label>
           </div>
 
           <div>
-            <input className="mr-1" type="radio" name="treeType" id="treeType3" value={3} checked={treeType === 3} onChange={onTreeTypeChange} />
-            <label className="text-sm" htmlFor="treeType3">Typ 3</label>
+            <input className="mr-1" type="radio" name="degree" id="degree3" value={3} checked={degree === 3} onChange={onDegreeChange} />
+            <label className="text-sm" htmlFor="degree3">Grad 3</label>
           </div>
 
           <div>
-            <input className="mr-1" type="radio" name="treeType" id="treeType4" value={4} checked={treeType === 4} onChange={onTreeTypeChange} />
-            <label className="text-sm" htmlFor="treeType4">Typ 4</label>
+            <input className="mr-1" type="radio" name="degree" id="degree4" value={4} checked={degree === 4} onChange={onDegreeChange} />
+            <label className="text-sm" htmlFor="degree4">Grad 4</label>
           </div>
 
           <div>
-            <input className="mr-1" type="radio" name="treeType" id="treeType5" value={5} checked={treeType === 5} onChange={onTreeTypeChange} />
-            <label className="text-sm" htmlFor="treeType5">Typ 5</label>
+            <input className="mr-1" type="radio" name="degree" id="degree5" value={5} checked={degree === 5} onChange={onDegreeChange} />
+            <label className="text-sm" htmlFor="degree5">Grad 5</label>
           </div>
+        </div>
+        <div>
+          <label htmlFor="treeType">Typ des Baums</label>
+          <select id="treeType" onChange={onTypeChange}>
+            <option value="number">Zahlen</option>
+            <option value="string">Strings</option>
+          </select>
         </div>
       </div>
     </div>
