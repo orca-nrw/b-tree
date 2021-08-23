@@ -175,6 +175,7 @@ export class CanvasHelper<Type> {
   }
 
   validateInsertion (key: any): ValidationResult {
+    if (this.treeType === 'number') key = Number(key)
     if (this.btree.contains(key)) return { isValid: false, error: 'Der Wert ist bereits vorhanden!' }
 
     if (this.treeType === 'number' && isNaN(Number(key))) return { isValid: false, error: 'Dieser Baumtyp nimmt nur Zahlen an!' }
