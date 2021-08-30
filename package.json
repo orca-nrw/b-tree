@@ -1,6 +1,6 @@
 {
   "name": "b-tree",
-  "homepage": "https://eild-nrw.github.io/b-tree/",
+  "homepage": "./",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
