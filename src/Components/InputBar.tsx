@@ -51,7 +51,7 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, degr
     resetHandler()
   }
 
-  function onDegreeChange (e: React.FormEvent<HTMLInputElement>) {
+  function onDegreeChange (e: React.FormEvent<HTMLSelectElement>) {
     setDegree(Number(e.currentTarget.value))
   }
 
@@ -68,39 +68,9 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, degr
           <button className="mr-4 bg-purple-500 hover:bg-purple-600 hover:shadow-md text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="insert" onClick={onInsert}>Einfügen</button>
 
           <input className="p-1 mr-2 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={deletionValue} onChange={handleDeletionInput} onKeyDown={handleKeyDownDelete} />
-          <button className="mr-4 bg-purple-500 hover:bg-purple-600 hover:shadow-md text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="delete" onClick={onDelete}>Löschen</button>
-
-          <button className="bg-purple-500 hover:bg-purple-600 hover:shadow-md text-white px-2 py-0 rounded-md cursor-pointer" type="button" value="reset" onClick={onReset}>Zurücksetzen</button>
-
+          <button className="bg-purple-500 hover:bg-purple-600 hover:shadow-md text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="delete" onClick={onDelete}>Löschen</button>
         </div>
-        <div className="mt-2 space-x-3 flex flex-row">
-          <label className="mr-2 font-semibold" htmlFor="degree1">Grad des Baums:</label>
 
-          <div>
-            <input className="mr-1" type="radio" name="degree" id="degree1" value={1} checked={degree === 1} onChange={onDegreeChange} />
-            <label className="text-sm" htmlFor="degree1">Grad 1</label>
-          </div>
-
-          <div>
-            <input className="mr-1" type="radio" name="degree" id="degree2" value={2} checked={degree === 2} onChange={onDegreeChange} />
-            <label className="text-sm" htmlFor="degree2">Grad 2</label>
-          </div>
-
-          <div>
-            <input className="mr-1" type="radio" name="degree" id="degree3" value={3} checked={degree === 3} onChange={onDegreeChange} />
-            <label className="text-sm" htmlFor="degree3">Grad 3</label>
-          </div>
-
-          <div>
-            <input className="mr-1" type="radio" name="degree" id="degree4" value={4} checked={degree === 4} onChange={onDegreeChange} />
-            <label className="text-sm" htmlFor="degree4">Grad 4</label>
-          </div>
-
-          <div>
-            <input className="mr-1" type="radio" name="degree" id="degree5" value={5} checked={degree === 5} onChange={onDegreeChange} />
-            <label className="text-sm" htmlFor="degree5">Grad 5</label>
-          </div>
-        </div>
         <div>
           <label className="mr-2 font-semibold" htmlFor="treeType">Typ des Baums:</label>
           <select className="border rounded border-black" id="treeType" onChange={onTypeChange}>
@@ -108,6 +78,18 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, degr
             <option value="string">Strings</option>
           </select>
         </div>
+        <div>
+          <label className="mr-2 font-semibold" htmlFor="treeType">Grad des Baums:</label>
+          <select className="border rounded border-black" id="treeType" onChange={onDegreeChange}>
+            <option value={1}>1</option>
+            <option value={2}>2</option>
+            <option value={3}>3</option>
+            <option value={4}>4</option>
+            <option value={5}>5</option>
+          </select>
+        </div>
+        <button className="bg-purple-500 hover:bg-purple-600 hover:shadow-md text-white px-2 py-1 rounded-md cursor-pointer" type="button" value="reset" onClick={onReset}>Zurücksetzen</button>
+
       </div>
     </>
   )
