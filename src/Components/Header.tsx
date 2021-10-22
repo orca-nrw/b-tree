@@ -5,9 +5,13 @@ import eildHeaderLogo from '../img/eild_header_logo.png'
 export const Header = () => {
   return (
     <header className="bg-white p-4">
-      <div className="w-full flex justify-between">
-        <img className="max-h-32" src={edbHeaderLogo} alt="EDB Logo" />
-        <img className="max-h-32" src={eildHeaderLogo} alt="EILD Logo" />
+      <div className="w-full flex">
+        <div className="flex-auto">
+          <img className="max-h-32 max-w-full" src={edbHeaderLogo} alt="EDB Logo" />
+        </div>
+        <div className="flex-auto">
+          <img className="max-h-32 max-w-full float-right" src={eildHeaderLogo} alt="EILD Logo" />
+        </div>
       </div>
     </header>
   )

@@ -50,17 +50,22 @@ export const BTree = () => {
   }, [treeType])
 
   return (
-    <div className="bg-white">
-      <InputBar
-        insertionHandler={handleInsertion}
-        deletionHandler={handleDeletion}
-        resetHandler={handleReset}
-        treeType={treeType}
-        setTreeType={setTreeType}
-        degree={degree}
-        setDegree={setDegree} />
+    <>
+      <div className="bg-white p-4">
+          <h1 className="no-underline text-black text-4xl font-semibold font-mono">NF-Trainer</h1>
+      </div>
+      <div className="bg-white p-4">
+        <InputBar
+          insertionHandler={handleInsertion}
+          deletionHandler={handleDeletion}
+          resetHandler={handleReset}
+          treeType={treeType}
+          setTreeType={setTreeType}
+          degree={degree}
+          setDegree={setDegree} />
 
-      <canvas className="m-auto" ref={canvasRef}></canvas>
-    </div>
+        <canvas className="m-auto" ref={canvasRef}></canvas>
+      </div>
+    </>
   )
 }

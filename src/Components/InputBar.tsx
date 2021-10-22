@@ -61,10 +61,7 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, degr
   }
 
   return (
-    <div className="p-4 flex justify-between">
-      <h1 className="text-4xl font-mono">
-        B-Baum-Zeichner
-      </h1>
+    <>
       <div className="flex flex-col items-end space-y-2">
         <div className="flex flex-row">
           <input className="p-1 mr-2 w-20 border rounded-lg border-gray-500" type="text" maxLength={5} value={insertValue} onChange={handleInsertionInput} onKeyDown={handleKeyDownInsert} />
@@ -112,6 +109,6 @@ export const InputBar = ({ insertionHandler, deletionHandler, resetHandler, degr
           </select>
         </div>
       </div>
-    </div>
+    </>
   )
 }
