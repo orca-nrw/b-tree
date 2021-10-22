@@ -38,8 +38,7 @@ export class CanvasHelper<Type> {
   constructor (canvasReference: HTMLCanvasElement, treeOrder: number, type: string) {
     // Save canvas reference
     this.canvas = canvasReference
-    const { innerWidth: width } = window
-    this.canvas.width = width - 32 // Padding
+    this.canvas.width = this.canvas.width = this.canvas.parentElement ? this.canvas.parentElement.scrollWidth - 32 : 375 // Try to use parent - padding or small default
     this.canvas.height = this.idealCanvasHeight
 
     // Savely extract the context
