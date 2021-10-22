@@ -52,7 +52,7 @@ export const BTree = () => {
   return (
     <>
       <div className="bg-white p-4">
-          <h1 className="no-underline text-black text-4xl font-semibold font-mono">NF-Trainer</h1>
+          <h1 className="no-underline text-black text-4xl font-semibold font-mono">B-Baum-Zeichner</h1>
       </div>
       <div className="bg-white p-4">
         <InputBar
