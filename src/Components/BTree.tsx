@@ -52,9 +52,6 @@ export const BTree = () => {
   return (
     <>
       <div className="bg-white p-4">
-          <h1 className="no-underline text-black text-4xl font-semibold font-mono select-none">B-Baum-Zeichner</h1>
-      </div>
-      <div className="bg-white p-4">
         <InputBar
           insertionHandler={handleInsertion}
           deletionHandler={handleDeletion}
@@ -62,7 +59,8 @@ export const BTree = () => {
           treeType={treeType}
           setTreeType={setTreeType}
           degree={degree}
-          setDegree={setDegree} />
+          setDegree={setDegree}
+        />
 
         <canvas className="m-auto" ref={canvasRef}></canvas>
       </div>
