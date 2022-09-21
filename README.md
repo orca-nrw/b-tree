@@ -2,7 +2,7 @@
 
 # B-Baum
 
-Dieser B-Baum-Zeichner ist eine Lernanwendung für Normalformen bzw. den Normalisierungsprozess in Datenbanken. Die Anwendung wurde ursprünglich von der [Technischen Hochschule Köln](https://www.th-koeln.de/) im Rahmen der Online-Lernplattform [EDB](https://edb2.gm.th-koeln.de/index) entwickelt und wurde nun als Teil des EILD.nrw Projektes weiterentwickelt und als Open-Source Anwendung veröffentlicht.
+Dieser B-Baum-Zeichner ist eine Lernanwendung für B-Bäume. Die Anwendung wurde ursprünglich von der [Technischen Hochschule Köln](https://www.th-koeln.de/) im Rahmen der Online-Lernplattform [EDB](https://edb2.gm.th-koeln.de/index) entwickelt und wurde nun als Teil des EILD.nrw Projektes weiterentwickelt und als Open-Source Anwendung veröffentlicht.
 
 In EILD wird ein Ansatz mit weitgehender Adaptierbarkeit und Wiederverwendbarkeit der Lehrinhalte umgesetzt.
 
